@@ -11,7 +11,9 @@ if [[ ! -x "$(command -v gsutil)" ]]; then
   exit 1
 fi
 
-ENV="dev"
+ENV="prod"
+
+# TODO: Case multiple project exist (gcloud projects list | grep $PROJECT_NAME_START | wc -l)
 
 # Organization
 ORGANIZATION_NAME="cloud-computing-jonathan"
