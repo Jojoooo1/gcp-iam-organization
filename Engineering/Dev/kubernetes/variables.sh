@@ -12,8 +12,8 @@ FOLDER_ID=$(gcloud alpha resource-manager folders list --folder $ENGINEERING_FOL
 BILLING_ID=$(gcloud alpha billing accounts list | grep "testing" | awk '{print $1}')
 # Project
 PROJECT_RANDOM_ID=$RANDOM
-PROJECT_NAME="$ENV-tf-project-$PROJECT_RANDOM_ID"
+PROJECT_NAME="$ENV-terraform-k8s-$PROJECT_RANDOM_ID"
 #
 PROJECT_SERVICE_ACCOUNT_NAME="$PROJECT_NAME-sa"
 PROJECT_BUCKET_NAME="$PROJECT_NAME-backend"
-PROJECT_KEY_PATH=./keys/$PROJECT_NAME-keyfile.json
+PROJECT_KEY_PATH="./keys/$PROJECT_NAME-sa-keyfile.json"
