@@ -25,9 +25,10 @@ BILLING_ID=$(gcloud alpha billing accounts list | grep "testing" | awk '{print $
 # Project
 PROJECT_RANDOM_ID=$RANDOM
 PROJECT_NAME="$ENV-tf-project-$PROJECT_RANDOM_ID"
+#
 PROJECT_SERVICE_ACCOUNT_NAME="$PROJECT_NAME-sa"
-PROJECT_PROJECT_BUCKET_NAME="$PROJECT_NAME-backend"
-CREDENTIALS_KEY_PATH=./keys/$PROJECT_NAME-keyfile.json
+PROJECT_BUCKET_NAME="$PROJECT_NAME-backend"
+PROJECT_KEY_PATH=./keys/$PROJECT_NAME-keyfile.json
 
 ## PROJECT : Engineering / dev / project ##
 # 1.1 Project: Create project within Dev folder
@@ -47,19 +48,23 @@ gcloud iam service-accounts create $PROJECT_SERVICE_ACCOUNT_NAME \
   --display-name "Terraform admin service account" \
   --project $PROJECT_NAME
 # 2.2 ServiceAccount: Download keys
-gcloud iam service-accounts keys create $CREDENTIALS_KEY_PATH \
+gcloud iam service-accounts keys create $PROJECT_KEY_PATH \
   --iam-account=$PROJECT_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com \
   --project $PROJECT_NAME
 # 2.3 ServiceAccount: Grant permissions
 gcloud projects add-iam-policy-binding $PROJECT_NAME \
   --member serviceAccount:$PROJECT_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com \
   --role roles/container.admin # Kubernetes Engine Admin: Provides access to full management of clusters and their Kubernetes API objects.
+# --role roles/container.clusterAdmin # Kubernetes Engine Cluster Admin: Provides access to management of clusters.
+
 gcloud projects add-iam-policy-binding $PROJECT_NAME \
   --member serviceAccount:$PROJECT_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com \
   --role roles/compute.admin # Compute Admin: Full control of all Compute Engine resources.
 gcloud projects add-iam-policy-binding $PROJECT_NAME \
   --member serviceAccount:$PROJECT_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com \
   --role roles/iam.serviceAccountUser # Needed for k8s: machine instances will be configured to run as a service account.
+
+# --role roles/resourcemanager.projectIamAdmin # Project IAM Admin: Provides permissions to administer Cloud IAM policies on projects.
 
 ## BACKEND ##
 # 3.1 RemoteBackend (tf state): Create & Enable versioning for state recovery in case of accident
