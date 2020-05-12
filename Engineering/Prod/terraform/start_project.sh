@@ -25,7 +25,8 @@ BILLING_ID=$(gcloud alpha billing accounts list | grep "testing" | awk '{print $
 # Project
 PROJECT_RANDOM_ID=$RANDOM
 PROJECT_NAME="$ENV-tf-project-$PROJECT_RANDOM_ID"
-PROJECT_SERVICE_ACCOUNT_NAME="$ENV-tf-sa-$PROJECT_RANDOM_ID"
+PROJECT_SERVICE_ACCOUNT_NAME="$PROJECT_NAME-sa"
+PROJECT_PROJECT_BUCKET_NAME="$PROJECT_NAME-backend"
 CREDENTIALS_KEY_PATH=./keys/$PROJECT_SERVICE_ACCOUNT_NAME-keyfile.json
 
 ## PROJECT : Engineering / dev / project ##
@@ -55,20 +56,22 @@ gcloud projects add-iam-policy-binding $PROJECT_NAME \
   --role roles/container.admin # Kubernetes Engine Admin: Provides access to full management of clusters and their Kubernetes API objects.
 gcloud projects add-iam-policy-binding $PROJECT_NAME \
   --member serviceAccount:$PROJECT_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com \
-  --role roles/compute.admin # Compute Admin: Full control of all Compute Engine resources. If the user will be managing virtual machine instances that are configured to run as a service account, you must also grant the roles/iam.serviceAccountUser role.
+  --role roles/compute.admin # Compute Admin: Full control of all Compute Engine resources.
+gcloud projects add-iam-policy-binding $PROJECT_NAME \
+  --member serviceAccount:$PROJECT_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com \
+  --role roles/iam.serviceAccountUser # Needed for k8s: machine instances will be configured to run as a service account.
 
 ## BACKEND ##
 # 3.1 RemoteBackend (tf state): Create & Enable versioning for state recovery in case of accident
-BUCKET_NAME=$PROJECT_NAME-backend
-gsutil mb -p $PROJECT_NAME -l us-east1 gs://$BUCKET_NAME && gsutil versioning set on gs://$BUCKET_NAME
+gsutil mb -p $PROJECT_NAME -l us-east1 gs://$PROJECT_BUCKET_NAME && gsutil versioning set on gs://$PROJECT_BUCKET_NAME
 # 3.2 RemoteBackend (tf state): Grant ServiceAccount permission to write to created bucket
-gsutil iam ch serviceAccount:$PROJECT_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com:legacyBucketWriter gs://$BUCKET_NAME
+gsutil iam ch serviceAccount:$PROJECT_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com:legacyBucketWriter gs://$PROJECT_BUCKET_NAME
 
 echo "PROJET_ID: $PROJECT_NAME"
 echo "PROJECT_SERVICE_ACCOUNT_NAME: $PROJECT_SERVICE_ACCOUNT_NAME"
 echo "PROJECT_SERVICE_ACCOUNT_FULL_NAME: $PROJECT_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com"
 echo "CREDENTIALS_KEY_NAME: $PROJECT_SERVICE_ACCOUNT_NAME-keyfile.json"
-echo "BUCKET_NAME: $BUCKET_NAME"
+echo "PROJECT_BUCKET_NAME: $PROJECT_BUCKET_NAME"
 
 #
 #
@@ -80,3 +83,8 @@ echo "BUCKET_NAME: $BUCKET_NAME"
 #   --role roles/iam.serviceAccountUser
 # gcloud iam service-accounts add-iam-policy-binding $PROJECT_SERVICE_ACCOUNT_NAME --member serviceAccount:$PROJECT_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com \
 #   --role roles/resourcemanager.projectIamAdmin # Project IAM Admin: Provides permissions to administer Cloud IAM policies on projects.
+#
+# Test if IAM is setup correctly
+# gcloud auth activate-service-account --key-file=./keys/dev-tf-sa-16296-keyfile.json
+# gcloud container clusters create test-cluster --num-nodes 1 --region us-east1 --project dev-tf-project-16296
+# yes | gcloud container clusters delete test-cluster --region us-east1 --project dev-tf-project-16296

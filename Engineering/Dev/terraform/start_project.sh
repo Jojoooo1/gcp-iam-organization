@@ -25,7 +25,8 @@ BILLING_ID=$(gcloud alpha billing accounts list | grep "testing" | awk '{print $
 # Project
 PROJECT_RANDOM_ID=$RANDOM
 PROJECT_NAME="$ENV-tf-project-$PROJECT_RANDOM_ID"
-PROJECT_SERVICE_ACCOUNT_NAME="$ENV-tf-sa-$PROJECT_RANDOM_ID"
+PROJECT_SERVICE_ACCOUNT_NAME="$PROJECT_NAME-sa"
+PROJECT_PROJECT_BUCKET_NAME="$PROJECT_NAME-backend"
 CREDENTIALS_KEY_PATH=./keys/$PROJECT_SERVICE_ACCOUNT_NAME-keyfile.json
 
 ## PROJECT : Engineering / dev / project ##
@@ -62,16 +63,15 @@ gcloud projects add-iam-policy-binding $PROJECT_NAME \
 
 ## BACKEND ##
 # 3.1 RemoteBackend (tf state): Create & Enable versioning for state recovery in case of accident
-BUCKET_NAME=$PROJECT_NAME-backend
-gsutil mb -p $PROJECT_NAME -l us-east1 gs://$BUCKET_NAME && gsutil versioning set on gs://$BUCKET_NAME
+gsutil mb -p $PROJECT_NAME -l us-east1 gs://$PROJECT_BUCKET_NAME && gsutil versioning set on gs://$PROJECT_BUCKET_NAME
 # 3.2 RemoteBackend (tf state): Grant ServiceAccount permission to write to created bucket
-gsutil iam ch serviceAccount:$PROJECT_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com:legacyBucketWriter gs://$BUCKET_NAME
+gsutil iam ch serviceAccount:$PROJECT_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com:legacyBucketWriter gs://$PROJECT_BUCKET_NAME
 
 echo "PROJET_ID: $PROJECT_NAME"
 echo "PROJECT_SERVICE_ACCOUNT_NAME: $PROJECT_SERVICE_ACCOUNT_NAME"
 echo "PROJECT_SERVICE_ACCOUNT_FULL_NAME: $PROJECT_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com"
 echo "CREDENTIALS_KEY_NAME: $PROJECT_SERVICE_ACCOUNT_NAME-keyfile.json"
-echo "BUCKET_NAME: $BUCKET_NAME"
+echo "PROJECT_BUCKET_NAME: $PROJECT_BUCKET_NAME"
 
 #
 #
