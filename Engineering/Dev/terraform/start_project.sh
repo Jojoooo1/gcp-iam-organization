@@ -62,8 +62,10 @@ gcloud projects add-iam-policy-binding $PROJECT_NAME \
   --role roles/compute.admin # Compute Admin: Full control of all Compute Engine resources.
 gcloud projects add-iam-policy-binding $PROJECT_NAME \
   --member serviceAccount:$PROJECT_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com \
-  --role roles/iam.serviceAccountUser # Needed for k8s: machine instances will be configured to run as a service account.
-
+  --role roles/iam.serviceAccountUser
+# roles/iam.serviceAccountUser: machine instances will be configured to run as a service account. (needed for k8s)
+# When granted alongside compute.admin => grants access to create VMs, attach disks to, and update metadata on VM instances that can run as a service account.
+#
 # --role roles/resourcemanager.projectIamAdmin # Project IAM Admin: Provides permissions to administer Cloud IAM policies on projects.
 
 ## BACKEND ##
@@ -75,7 +77,7 @@ gsutil iam ch serviceAccount:$PROJECT_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gse
 echo "PROJET_ID: $PROJECT_NAME"
 echo "PROJECT_SERVICE_ACCOUNT_NAME: $PROJECT_SERVICE_ACCOUNT_NAME"
 echo "PROJECT_SERVICE_ACCOUNT_FULL_NAME: $PROJECT_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com"
-echo "CREDENTIALS_KEY_NAME: $PROJECT_SERVICE_ACCOUNT_NAME-keyfile.json"
+echo "CREDENTIALS_KEY_NAME: $PROJECT_NAME-keyfile.json"
 echo "PROJECT_BUCKET_NAME: $PROJECT_BUCKET_NAME"
 
 #

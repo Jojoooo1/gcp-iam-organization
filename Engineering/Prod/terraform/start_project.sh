@@ -25,9 +25,10 @@ BILLING_ID=$(gcloud alpha billing accounts list | grep "testing" | awk '{print $
 # Project
 PROJECT_RANDOM_ID=$RANDOM
 PROJECT_NAME="$ENV-tf-project-$PROJECT_RANDOM_ID"
+#
 PROJECT_SERVICE_ACCOUNT_NAME="$PROJECT_NAME-sa"
-PROJECT_PROJECT_BUCKET_NAME="$PROJECT_NAME-backend"
-CREDENTIALS_KEY_PATH=./keys/$PROJECT_NAME-keyfile.json
+PROJECT_BUCKET_NAME="$PROJECT_NAME-backend"
+PROJECT_KEY_PATH=./keys/$PROJECT_NAME-keyfile.json
 
 ## PROJECT : Engineering / dev / project ##
 # 1.1 Project: Create project within Dev folder
@@ -47,7 +48,7 @@ gcloud iam service-accounts create $PROJECT_SERVICE_ACCOUNT_NAME \
   --display-name "Terraform admin service account" \
   --project $PROJECT_NAME
 # 2.2 ServiceAccount: Download keys
-gcloud iam service-accounts keys create $CREDENTIALS_KEY_PATH \
+gcloud iam service-accounts keys create $PROJECT_KEY_PATH \
   --iam-account=$PROJECT_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com \
   --project $PROJECT_NAME
 # 2.3 ServiceAccount: Grant permissions
@@ -70,7 +71,7 @@ gsutil iam ch serviceAccount:$PROJECT_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gse
 echo "PROJET_ID: $PROJECT_NAME"
 echo "PROJECT_SERVICE_ACCOUNT_NAME: $PROJECT_SERVICE_ACCOUNT_NAME"
 echo "PROJECT_SERVICE_ACCOUNT_FULL_NAME: $PROJECT_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com"
-echo "CREDENTIALS_KEY_NAME: $PROJECT_SERVICE_ACCOUNT_NAME-keyfile.json"
+echo "CREDENTIALS_KEY_NAME: $PROJECT_NAME-keyfile.json"
 echo "PROJECT_BUCKET_NAME: $PROJECT_BUCKET_NAME"
 
 #
