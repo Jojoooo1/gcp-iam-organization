@@ -1,0 +1,5 @@
+  PROJET_ID: dev-terraform-k8s-478
+  PROJECT_SERVICE_ACCOUNT_NAME: dev-terraform-k8s-478-sa
+  PROJECT_SERVICE_ACCOUNT_FULL_NAME: dev-terraform-k8s-478-sa@dev-terraform-k8s-478.iam.gserviceaccount.com
+  CREDENTIALS_KEY_NAME: dev-terraform-k8s-478-keyfile.json
+  PROJECT_BUCKET_NAME: dev-terraform-k8s-478-backend
