@@ -7,9 +7,9 @@ if [[ ! -x "$(command -v gcloud)" ]]; then
 fi
 
 ENV="dev"
-PROJECT_NAME_START="$ENV-terraform-k8s"
+PROJECT_PREFIX="terraform-k8s"
 #
-PROJECT_DETAILS=$(gcloud projects list | grep $PROJECT_NAME_START)
+PROJECT_DETAILS=$(gcloud projects list | grep $PROJECT_PREFIX)
 #
 PROJECT_ID=$(echo $PROJECT_DETAILS | awk '{print $1}')
 #

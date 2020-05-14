@@ -1,0 +1,35 @@
+gcloud SDK:
+  - PERMISSION_DENIED can be thrown when trying to delete resources that do not exist
+
+Hierarchy
+  - Create a hierarchy that closely matches your organization’s corporate structure
+  - Use Organization Policy Service to get centralized and programmatic control over your organization's cloud resources (For example, you can define a constraint to restrict virtual machine instances from having an external IP address.)
+  - Use groups in preference to explicitly listing large numbers of users. Not only does it scale better, 
+    it also provides a very efficient way to update the access control for a large number of objects all at once.
+  - Any GCP resources that you allocate and use must belong to a project.
+
+
+Compute (enable compute.googleapis.com):
+  When you first enable the Google Compute Engine, ** it automatically creates a “Default Service Account.” **
+  If you don’t make any custom changes while launching a new virtual machine, it will automatically use the default service account. 
+  This means that your virtual machine will authenticate as the service account, so it can make any GCP API calls as that service account. 
+  If a user were to SSH into the virtual machine and start running “gcloud” commands, it would utilize those service account credentials to interact with GCP.
+
+  ** Google recommends that you immediately remove the default service account. **
+
+VPC:
+  - By default, all VMs in GCP are assigned a public IP address and are therefore accessible directly from the internet if there are firewall rules that allows it 
+    (such as the default ones). This is a risk that could be easily mitigated by disabling public IPs in a project. Instead use a NAT
+  - Deny management access (SSH/RDP) directly from the internet and instead use a VPN solution or a bastion host
+
+Project Networking:
+  - By default when you create a new project in GCP ** it generates a default network and associated firewall rules. **
+
+Compute Engine Networking:
+  - It is recommended to disable project-wide SSH keys as it applies a coarse security model that allows the holder of an added SSH key privileged access to all Linux instances.
+  - Default service account that each VM obtains at creation, unless configured differently. The default service account gives read-only 
+    access to all Cloud Storage buckets and its content that resides in the same project as the VM instance. The implication of this is that 
+    if no extra configuration is made, an attacker who gains access to a VM will also be able to access the information stored in the cloud storage buckets.
+
+Logging:
+  - Enable the VPC flow log at full sampling rate to detect port scans or anomalous behavior.
