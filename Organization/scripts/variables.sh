@@ -8,8 +8,8 @@ set -e
 # Mandatory variable set in project
 # ENV="dev"
 # PROJECT_PREFIX="terraform-project-factory"
-# PARENT_FOLDER_NAME="Engineering"*
-# BILLING_NAME
+
+# BILLING_NAME: optional
 
 [ -z "$ENV" ] && echo "DEV needs to bet set. Exiting." && exit 1
 [ -z "$PROJECT_PREFIX" ] && echo "PROJECT_PREFIX needs to bet set. Exiting." && exit 1
@@ -20,9 +20,8 @@ ORGANIZATION_NAME="cloud-computing-jonathan"
 ORGANIZATION_ID=$(gcloud organizations list | grep $ORGANIZATION_NAME | awk '{print $2}')
 [[ $ORGANIZATION_ID == "" ]] && echo "The organization id provided does not exist. Exiting." && exit 1
 # Hierarchy
-PARENT_FOLDER_ID=$(gcloud alpha resource-manager folders list --organization $ORGANIZATION_ID | grep "$PARENT_FOLDER_NAME" | awk '{print $3}')
-[[ $PARENT_FOLDER_ID == "" ]] && echo "The Parent folder id provided does not exist. Exiting." && exit 1
-FOLDER_ID=$(gcloud alpha resource-manager folders list --folder $PARENT_FOLDER_ID | grep "$(tr '[:lower:]' '[:upper:]' <<<${ENV:0:1})${ENV:1}" | awk '{print $3}') # Gets folder based on env
+ENGINEERING_FOLDER_ID=$(gcloud alpha resource-manager folders list --organization $ORGANIZATION_ID | grep "Engineering" | awk '{print $3}')
+ENV_FOLDER_ID=$(gcloud alpha resource-manager folders list --folder $ENGINEERING_FOLDER_ID | grep "$(tr '[:lower:]' '[:upper:]' <<<${ENV:0:1})${ENV:1}" | awk '{print $3}') # Gets folder based on env
 # Billing
 [[ -z $BILLING_NAME ]] && BILLING_NAME=testing
 BILLING_ID=$(gcloud alpha billing accounts list | grep $BILLING_NAME | awk '{print $1}')

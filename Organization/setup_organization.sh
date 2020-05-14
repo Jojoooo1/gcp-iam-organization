@@ -16,6 +16,12 @@ ENGINEERING_FOLDER_ID=$(gcloud alpha resource-manager folders list --organizatio
 
 # Creates Dev folder from Engineering
 gcloud alpha resource-manager folders create \
+  --display-name="Terraform project factory" \
+  --folder=$ENGINEERING_FOLDER_ID
+TF_ADMIN_PROJECT_FACTORY_FOLDER_ID=$(gcloud alpha resource-manager folders list --folder $ENGINEERING_FOLDER_ID | grep "Terraform project factory" | awk '{print $3}')
+
+# Creates Dev folder from Engineering
+gcloud alpha resource-manager folders create \
   --display-name="Dev" \
   --folder=$ENGINEERING_FOLDER_ID
 DEV_FOLDER_ID=$(gcloud alpha resource-manager folders list --folder $ENGINEERING_FOLDER_ID | grep "Dev" | awk '{print $3}')
