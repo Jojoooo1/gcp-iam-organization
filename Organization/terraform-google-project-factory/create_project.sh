@@ -2,13 +2,11 @@
 set -e
 
 # Base variables
-ENV="dev"
-PROJECT_PREFIX="terraform-project-factory"
-PARENT_FOLDER_NAME="Engineering"
+PROJECT_PREFIX="tf-project-factory"
 
 # Dependencies
-. ../../variables.sh
-. ../../functions.sh
+source ../../variables.sh
+source ../../functions.sh
 
 # Variables
 SERVICES=("cloudresourcemanager.googleapis.com" "cloudbilling.googleapis.com" "iam.googleapis.com" "admin.googleapis.com" "appengine.googleapis.com")
@@ -19,10 +17,10 @@ SA_PROJECT_ROLES=("roles/resourcemanager.projectIamAdmin")
 #
 ## Project ##
 # 1.1 Project: Create project within folder
-TF_ADMIN_PROJECT_FACTORY_FOLDER_ID=$(gcloud alpha resource-manager folders list --folder $ENGINEERING_FOLDER_ID | grep "Terraform project factory" | awk '{print $3}')
-createProjectWithinFolder $PROJECT_NAME $TF_ADMIN_PROJECT_FACTORY_FOLDER_ID
+TF_PROJECT_FACTORY_FOLDER_ID=$(gcloud alpha resource-manager folders list --folder $ENGINEERING_FOLDER_ID | grep "Terraform" | awk '{print $3}')
+createProject $PROJECT_NAME $TF_PROJECT_FACTORY_FOLDER_ID
 # 1.2 Project: Link project to billing account
-linkProjectToBillingAccount $PROJECT_NAME $BILLING_ID
+linkProjectToBillingAccount $PROJECT_NAME $PRIMARY_BILLING_ACCOUNT_ID
 # 1.3 Project: Enable API
 enableServices $PROJECT_NAME $SERVICES
 #
@@ -32,11 +30,11 @@ createServiceAccount $PROJECT_SERVICE_ACCOUNT_ID "Terraform project factory serv
 # 2.2 ServiceAccount: Download keys
 DownloadServiceAccountKeys $PROJECT_SERVICE_ACCOUNT_ID $PROJECT_KEY_PATH
 # 2.3 ServiceAccount: Grant permissions on organization
-grantRolesOnOrganization $PROJECT_SERVICE_ACCOUNT_ID $ORGANIZATION_ID $SA_ORGANIZATION_ROLES
+grantRolesOnOrganization $ORGANIZATION_ID $PROJECT_SERVICE_ACCOUNT_ID $SA_ORGANIZATION_ROLES
 # 2.4 ServiceAccount: Grant permissions on project
-grantRolesOnProject $PROJECT_SERVICE_ACCOUNT_ID $SA_PROJECT_ROLES
+grantRolesOnProject $PROJECT_NAME $PROJECT_SERVICE_ACCOUNT_ID $SA_PROJECT_ROLES
 # 2.5 ServiceAccount: Grant permissions on folder
-grantRolesOnFolder $PROJECT_SERVICE_ACCOUNT_ID $TF_ADMIN_PROJECT_FACTORY_FOLDER_ID
+grantRolesOnFolder $TF_PROJECT_FACTORY_FOLDER_ID $PROJECT_SERVICE_ACCOUNT_ID
 
 # tee info.txt <<EOF
 # PROJECT_NAME: $PROJECT_NAME
