@@ -5,8 +5,8 @@ set -e
 PROJECT_PREFIX="tf-folder-admin"
 
 # Dependencies
-source ../../variables.sh
-source ../../functions.sh
+source ../utils/variables.sh
+source ../utils/functions.sh
 
 # Variables
 SERVICES=("cloudresourcemanager.googleapis.com")
@@ -14,24 +14,26 @@ SERVICE_ACCOUNT_ROLES=("resourcemanager.folderAdmin")
 
 #
 ## Project ##
-# 1.1 Project: Create
+echo ">>>>>>> Creating project"
 PARENT_FOLDER_NAME="Admin"
-PARENT_FOLDER_ID=$(gcloud alpha resource-manager folders list --folder $PARENT_FOLDER_NAME | grep $PARENT_FOLDER_NAME | awk '{print $3}')
+PARENT_FOLDER_ID=$(gcloud alpha resource-manager folders list --organization $ORGANIZATION_ID | grep $PARENT_FOLDER_NAME | awk '{print $3}')
 createProject $PROJECT_NAME $PARENT_FOLDER_ID
-# 1.2 Project: Link project to billing account
+echo ">>>>>>> Linking billing account to project"
 linkProjectToBillingAccount $PROJECT_NAME $ORGANIZATION_BILLING_ACCOUNT_ID
-# 1.3 Project: Enable API
+echo ">>>>>>> Enabling API"
 enableServices $PROJECT_NAME $SERVICES
 #
 ## IAM ##
-# 2.1 ServiceAccount: Create & download
+echo ">>>>>>> Creating service account"
 SERVICE_ACCOUNT_DESCRIPTION="Terraform folder admin service account"
 createServiceAccount $PROJECT_NAME $SERVICE_ACCOUNT_DESCRIPTION
+echo ">>>>>>> downloading service account key"
 DownloadServiceAccountKeys $PROJECT_NAME
+echo ">>>>>>> Grating role on organization"
 grantRolesOnOrganization $PROJECT_NAME $ORGANIZATION_ID $SERVICE_ACCOUNT_ROLES
 #
 ## Backend ##
-# 3.1 Bucket: Create
+echo ">>>>>>> Creating bucket"
 createBucketForProject $PROJECT_NAME
 
 tee info.txt <<EOF
