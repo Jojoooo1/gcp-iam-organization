@@ -2,23 +2,23 @@
 set -e
 
 # Base variables
-PROJECT_PREFIX="tf-folder-factory"
+ENV="dev"
+PROJECT_PREFIX="tf-project-admin"
 
-# Dependencies
-source ../../../scripts/variables.sh
-source ../../../scripts/functions.sh
-
-# prevent grep to exit on no match
+# prevent grep to exit on no match && if permission denied object probably does not exist
 PROJECT_DETAILS=$(gcloud projects list | grep $PROJECT_PREFIX || true)
 [ -z "$PROJECT_DETAILS" ] && echo "Project with prefix '$PROJECT_PREFIX' not found" && exit 1
-PROJECT_ID=$(echo $PROJECT_DETAILS | awk '{print $1}')
-# TODO: multiple project found
+PROJECT_NAME=$(echo $PROJECT_DETAILS | awk '{print $1}')
+SERVICE_ACCOUNT=$(gcloud iam service-accounts describe $PROJECT_NAME-sa@$PROJECT_NAME.iam.gserviceaccount.com) # will exit if not found
 
-read -r -p "Are you sure you want to delete the project \"$PROJECT_ID\" [Y/n]:  " RESPONSE
+read -r -p "Are you sure you want to delete the project '$PROJECT_NAME' and serviceAccount '$PROJECT_NAME-sa' [Y/n]:  " RESPONSE
 echo
 if [[ $RESPONSE =~ ^([yY][eE][sS]|[yY])$ ]]; then
 
-  gcloud projects delete $PROJECT_ID
+  # if service account binded to organization
+  # gcp bug: when trying to remove service account it will not be deleted from organization even if service account is deleted but key will be unusable
+  gcloud iam service-accounts delete "$PROJECT_NAME-sa@$PROJECT_NAME.iam.gserviceaccount.com"
+  gcloud projects delete $PROJECT_NAME
   rm -f keys/*
 
 else

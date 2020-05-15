@@ -49,8 +49,9 @@ createServiceAccount() {
 }
 DownloadServiceAccountKeys() {
   # PROJECT_NAME=$1
-  gcloud iam service-accounts keys create "./keys/$1-sa-keyfile.json" \
-    --iam-account "serviceAccount:$1-sa@$1.iam.gserviceaccount.com"
+  gcloud iam service-accounts keys create "$1-sa-keyfile.json" \
+    --iam-account $1-sa@$1.iam.gserviceaccount.com \
+    --project $1
 }
 grantRolesOnProject() {
   # PROJECT_NAME=$1
@@ -59,9 +60,11 @@ grantRolesOnProject() {
     echo "Granting role '${ROLES[$i]}' to 'serviceAccount:$1-sa@$1.iam.gserviceaccount.com' on Project '$1'"
     gcloud projects add-iam-policy-binding $1 \
       --member "serviceAccount:$1-sa@$1.iam.gserviceaccount.com" \
-      --role ${ROLES[$i]}
+      --role roles/${ROLES[$i]}
   done
 }
+
+# gcp bug: when trying to remove service account it will not be deleted from organization even if service account is deleted but key will be unusable
 grantRolesOnOrganization() {
   # PROJECT_NAME=$1
   # ORG_ID=$2
@@ -70,7 +73,7 @@ grantRolesOnOrganization() {
     echo "Granting role '${ROLES[$i]}' to 'serviceAccount:$1-sa@$1.iam.gserviceaccount.com' on Organization '$1'"
     gcloud organizations add-iam-policy-binding $2 \
       --member "serviceAccount:$1-sa@$1.iam.gserviceaccount.com" \
-      --role ${ROLES[$i]}
+      --role roles/${ROLES[$i]}
   done
 }
 grantRolesOnFolder() {

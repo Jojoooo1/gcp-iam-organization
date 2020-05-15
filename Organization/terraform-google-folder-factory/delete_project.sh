@@ -15,6 +15,8 @@ read -r -p "Are you sure you want to delete the project '$PROJECT_NAME' and serv
 echo
 if [[ $RESPONSE =~ ^([yY][eE][sS]|[yY])$ ]]; then
 
+  # if service account binded to organization
+  # gcp bug: when trying to remove service account it will not be deleted from organization even if service account is deleted but key will be unusable
   gcloud iam service-accounts delete "$PROJECT_NAME-sa@$PROJECT_NAME.iam.gserviceaccount.com"
   gcloud projects delete $PROJECT_NAME
   rm -f keys/*

@@ -10,7 +10,7 @@ source ../utils/functions.sh
 
 # Variables
 SERVICES=("cloudresourcemanager.googleapis.com")
-SERVICE_ACCOUNT_ROLES=("resourcemanager.folderAdmin")
+SERVICE_ACCOUNT_ORGANIZATION_ROLES=("resourcemanager.folderAdmin")
 
 #
 ## Project ##
@@ -28,23 +28,27 @@ echo ">>>>>>> Creating service account"
 SERVICE_ACCOUNT_DESCRIPTION="Terraform folder admin service account"
 createServiceAccount $PROJECT_NAME $SERVICE_ACCOUNT_DESCRIPTION
 
-sleep 60 # Needs to wait for google actualizing accout (takes a long time)
+# Needs to wait for google actualizing account (takes a long time)
+sleep 60
 
 echo ">>>>>>> downloading service account key"
 DownloadServiceAccountKeys $PROJECT_NAME
 
-echo ">>>>>>> Grating role on organization"
-grantRolesOnOrganization $PROJECT_NAME $ORGANIZATION_ID $SERVICE_ACCOUNT_ROLES
+echo ">>>>>>> ServiceAccount: Granting role on organization"
+grantRolesOnOrganization $PROJECT_NAME $ORGANIZATION_ID $SERVICE_ACCOUNT_ORGANIZATION_ROLES
 #
 ## Backend ##
 echo ">>>>>>> Creating bucket"
 createBucketForProject $PROJECT_NAME
 
+echo
+echo ">>>>>>> creating file info.txt"
+
 tee info.txt <<EOF
 PROJECT_NAME: $PROJECT_NAME
-PROJECT_BUCKET_NAME: $PROJECT_BUCKET_NAME
+PROJECT_BUCKET_NAME: $PROJECT_NAME-backend
 
-SERVICE_ACCOUNT_NAME: $SERVICE_ACCOUNT_NAME
-SERVICE_ACCOUNT_ID: $SERVICE_ACCOUNT_ID
-SERVICE_ACCOUNT_KEY_PATH: $SERVICE_ACCOUNT_KEY_PATH
+SERVICE_ACCOUNT_NAME: $PROJECT_NAME-sa
+SERVICE_ACCOUNT_ID: $PROJECT_NAME-sa@$PROJECT_NAME.iam.gserviceaccount.com
+SERVICE_ACCOUNT_KEY_PATH: $PROJECT_NAME-sa-keyfile.json
 EOF

@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+# TODO:
 
 # gcp-organization-admins:
 # => Organization admins are responsible for organizing the structure of the resources used by the organization.

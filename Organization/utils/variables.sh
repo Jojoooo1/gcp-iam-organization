@@ -14,7 +14,8 @@ set -e
 [ -z "$PROJECT_PREFIX" ] && echo "PROJECT_PREFIX needs to bet set. Exiting." && exit 1
 
 # Organization variables
-ORGANIZATION_BILLING_ACCOUNT_ID="01612C-53F687-4F01A3"
+ORGANIZATION_BILLING_NAME="Primary"
+ORGANIZATION_BILLING_ACCOUNT_ID=$(gcloud alpha billing accounts list | grep $ORGANIZATION_BILLING_NAME | awk '{print $1}')
 ORGANIZATION_NAME="cloud-computing-jonathan"
 ORGANIZATION_ID=$(gcloud organizations list | grep $ORGANIZATION_NAME | awk '{print $2}')
 [[ $ORGANIZATION_ID == "" ]] && echo "The organization id provided does not exist. Exiting." && exit 1
@@ -26,8 +27,3 @@ ORGANIZATION_ID=$(gcloud organizations list | grep $ORGANIZATION_NAME | awk '{pr
 # Project pre-defined variable
 RANDOM_ID=$RANDOM
 PROJECT_NAME="$PROJECT_PREFIX-$RANDOM_ID"
-# PROJECT_BUCKET_NAME="$PROJECT_NAME-backend"
-# #
-# SERVICE_ACCOUNT_NAME="$PROJECT_NAME-sa"
-# SERVICE_ACCOUNT_ID="serviceAccount:$SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com"
-# SERVICE_ACCOUNT_KEY_PATH="./keys/$PROJECT_NAME-sa-keyfile.json"
