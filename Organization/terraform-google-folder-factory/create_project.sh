@@ -27,8 +27,12 @@ enableServices $PROJECT_NAME $SERVICES
 echo ">>>>>>> Creating service account"
 SERVICE_ACCOUNT_DESCRIPTION="Terraform folder admin service account"
 createServiceAccount $PROJECT_NAME $SERVICE_ACCOUNT_DESCRIPTION
+
+sleep 60 # Needs to wait for google actualizing accout (takes a long time)
+
 echo ">>>>>>> downloading service account key"
 DownloadServiceAccountKeys $PROJECT_NAME
+
 echo ">>>>>>> Grating role on organization"
 grantRolesOnOrganization $PROJECT_NAME $ORGANIZATION_ID $SERVICE_ACCOUNT_ROLES
 #
